@@ -30,6 +30,9 @@ One of:
 
 **Software and Dependencies:**
 
+* Adafruit CircuitPython ticks library:
+  <https://github.com/adafruit/Adafruit_CircuitPython_ticks>_
+
 For Keybow 2040:
 
 * Adafruit CircuitPython firmware for Keybow 2040:
@@ -48,7 +51,8 @@ For Pico RGB Keypad Base:
 
 """
 
-import time
+from adafruit_ticks import ticks_ms, ticks_add, ticks_diff, ticks_less
+
 
 class PMK(object):
     """
@@ -60,10 +64,10 @@ class PMK(object):
     def __init__(self, hardware):
         self.hardware = hardware
         self.keys = []
-        self.time_of_last_press = time.monotonic()
+        self.time_of_last_press = ticks_ms()
         self.time_since_last_press = None
         self.led_sleep_enabled = False
-        self.led_sleep_time = 60
+        self.led_sleep_time = 60_000  # milliseconds
         self.sleeping = False
         self.was_asleep = False
         self.last_led_states = None
@@ -83,16 +87,16 @@ class PMK(object):
         # Used to work out the sleep behaviour, by keeping track
         # of the time of the last key press.
         if self.any_pressed():
-            self.time_of_last_press = time.monotonic()
+            self.time_of_last_press = ticks_ms()
             self.sleeping = False
 
-        self.time_since_last_press = time.monotonic() - self.time_of_last_press
+        self.time_since_last_press = ticks_diff(ticks_ms(), self.time_of_last_press)
 
         # If LED sleep is enabled, but not engaged, check if enough time
         # has elapsed to engage sleep. If engaged, record the state of the
         # LEDs, so it can be restored on wake.
         if self.led_sleep_enabled and not self.sleeping:
-            if time.monotonic() - self.time_of_last_press > self.led_sleep_time:
+            if ticks_diff(ticks_ms(), self.time_of_last_press) > self.led_sleep_time:
                 self.sleeping = True
                 self.last_led_states = [k.rgb if k.lit else [0, 0, 0] for k in self.keys]
                 self.set_all(0, 0, 0)
@@ -262,7 +266,7 @@ class Key:
         self.state = 0
         self.pressed = 0
         self.last_state = None
-        self.time_of_last_press = time.monotonic()
+        self.time_of_last_press = ticks_ms()
         self.time_since_last_press = None
         self.time_held_for = 0
         self.held = False
@@ -289,7 +293,7 @@ class Key:
         # Updates the state of the key and updates all of its
         # attributes.
 
-        self.time_since_last_press = time.monotonic() - self.time_of_last_press
+        self.time_since_last_press = ticks_diff(ticks_ms(), self.time_of_last_press)
 
         # Keys get locked during the debounce time.
         if self.time_since_last_press < self.debounce:
@@ -299,7 +303,7 @@ class Key:
 
         self.state = self.get_state()
         self.pressed = self.state
-        update_time = time.monotonic()
+        update_time = ticks_ms()
 
         # If there's a `press_function` attached, then call it,
         # returning the key object and the pressed state.

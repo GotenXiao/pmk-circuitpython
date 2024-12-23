@@ -62,6 +62,13 @@ Drag and drop the `adafruit-circuitpython-pimoroni_keybow2040-en_US-XXXXX.uf2`
 file that you downloaded onto the drive and it should reboot and load the
 CircuitPython firmware. The drive should now show up as `CIRCUITPY`.
 
+[Download the Adafruit Ticks library](https://github.com/adafruit/Adafruit_CircuitPython_ticks)
+
+The Adafruit Ticks library for CircuitPython is used for timing. Download the
+appropriate release (e.g. if using CircuitPython 9.x, the
+`adafruit-circuitpython-ticks-9.x-mpy-A.B.C.zip`), and copy 
+`lib/adafruit_ticks.mpy` to the `lib` folder on the connected device.
+
 The Adafruit IS31FL3731 LED driver library for CircuitPython is a prerequisite for
 this Keybow 2040 library, so you'll need to download it from GitHub at the link
 below, and then drop the `adafruit_is31fl3731` folder into the `lib` folder on
